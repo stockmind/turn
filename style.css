@@ -88,17 +88,34 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--verd); outl
 }
 
 .docs { list-style: none; margin: 0; padding: 0 var(--pad); }
+.doc-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-top: 1px solid var(--rule);
+}
+.doc-row:last-child { border-bottom: 1px solid var(--rule); }
 .doc {
   display: grid;
-  grid-template-columns: 26px 1fr auto;
+  grid-template-columns: 26px 1fr;
   gap: 16px;
   align-items: center;
   padding: 17px 0;
-  border-top: 1px solid var(--rule);
   text-align: left;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
-.doc:last-child { border-bottom: 1px solid var(--rule); }
+.doc-more {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  color: #857a6c;
+  border-radius: 2px;
+}
+.doc-more:active { background: rgba(22, 19, 15, .06); }
 /* signature: the fore-edge grows with the page count */
 .spine {
   width: 22px;
@@ -122,7 +139,6 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--verd); outl
   margin-top: 6px;
   text-transform: uppercase;
 }
-.doc-go { font-family: var(--serif); font-size: 20px; color: var(--verd); }
 
 .empty {
   margin: 8px var(--pad);
@@ -144,6 +160,18 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--verd); outl
 
 #capture { position: fixed; inset: 0; background: #0b0906; overflow: hidden; }
 #video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0b0906; }
+/* keeps the HUD legible whether the frame holds a white page or a dark room */
+.scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(11, 9, 6, .58) 0%,
+    rgba(11, 9, 6, .10) 13%,
+    rgba(11, 9, 6, 0) 30%,
+    rgba(11, 9, 6, 0) 74%,
+    rgba(11, 9, 6, .62) 100%);
+}
 
 .frame {
   --p: 0;
@@ -198,8 +226,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--verd); outl
   font-size: 19px;
   color: #fff;
   border-radius: 2px;
-  background: rgba(0, 0, 0, .34);
+  background: rgba(0, 0, 0, .46);
   backdrop-filter: blur(10px);
+  box-shadow: 0 1px 10px rgba(0, 0, 0, .28);
 }
 .iconbtn:active { background: rgba(0, 0, 0, .6); }
 #read .iconbtn { color: var(--ink); background: none; width: 36px; }
@@ -225,6 +254,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--verd); outl
 .tally {
   font-family: var(--mono);
   color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .55);
   display: flex;
   align-items: baseline;
   gap: 6px;
@@ -244,6 +274,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--verd); outl
   border: 2px solid rgba(255, 255, 255, .9);
   display: grid; place-items: center;
   transition: transform .12s, border-color .2s;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, .45);
 }
 .shutter span { width: 56px; height: 56px; border-radius: 50%; background: #f6f2ea; transition: transform .12s, background .2s; }
 .shutter:active { transform: scale(.94); }
@@ -305,10 +336,14 @@ body[data-screen="capture"].paused .shutter span { background: rgba(255, 255, 25
   letter-spacing: .1em;
   text-transform: uppercase;
   color: #7d7264;
-  padding: 0 var(--pad) 18px;
+  padding: 0 var(--pad) 16px;
   border-bottom: 1px solid var(--rule);
   margin-bottom: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
+.meta-sub { color: #9a8f80; }
 
 .prose {
   flex: 1;
@@ -334,30 +369,94 @@ body[data-screen="capture"].paused .shutter span { background: rgba(255, 255, 25
 .prose h2:first-child { margin-top: .4em; border-top: 0; padding-top: 0; }
 .prose .blank { font-style: italic; color: #857a6c; }
 
-.menu {
-  position: absolute;
-  right: var(--pad);
-  top: calc(env(safe-area-inset-top) + 64px);
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 2px;
-  z-index: 4;
-  min-width: 11rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
+/* ── sheet: document actions and confirms ── */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 14px;
+  padding-bottom: calc(var(--bottom) + 8px);
+  background: rgba(11, 9, 6, .52);
+  backdrop-filter: blur(5px);
+  animation: veil .16s ease-out;
 }
-.menu[hidden] { display: none; }
-.menu button {
+.sheet[hidden] { display: none; }
+.sheet-card {
+  width: min(27rem, 100%);
+  background: var(--paper);
+  border-radius: 3px;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, .35);
+  padding: 20px 20px 8px;
+  animation: rise .2s cubic-bezier(.2, .9, .2, 1);
+}
+.sheet-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -.005em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sheet-head p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4a4137;
+}
+.sheet-head p[hidden] { display: none; }
+.sheet-actions {
+  margin: 16px 0 0;
+  border-top: 1px solid var(--rule);
+}
+.sheet-actions button {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 14px 16px;
+  padding: 15px 2px;
+  border-bottom: 1px solid var(--rule);
   font-family: var(--mono);
   font-size: 12px;
-  letter-spacing: .06em;
+  letter-spacing: .07em;
   text-transform: uppercase;
 }
-.menu button + button { border-top: 1px solid rgba(244, 239, 229, .14); }
-.menu .danger { color: #f0a091; }
+.sheet-actions button:active { opacity: .55; }
+.sheet-actions .danger { color: var(--red); }
+.sheet-actions .muted { color: #857a6c; }
+.sheet-dismiss {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 16px 2px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: #6d6357;
+}
+.sheet-dismiss[hidden] { display: none; }
+
+.meter {
+  height: 2px;
+  margin: 18px 0 4px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.meter i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--verd);
+  transition: width .2s linear;
+}
+
+@keyframes veil { from { opacity: 0; } }
+@keyframes rise { from { transform: translateY(14px); opacity: .6; } }
 
 .toolbar {
   position: sticky;

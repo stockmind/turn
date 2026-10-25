@@ -21,7 +21,17 @@ sw.js        app-shell cache
 
 `text` is the whole document as paragraphs separated by blank lines, plus chapter heading paragraphs inline. Nothing else is persisted: chapters and exported files are derived at export time, so a text edit never has to migrate a structure. `pages` counts **successfully read** pages, not shots — a duplicate shot does not increment it.
 
-Persistence is a single IndexedDB store `docs` (DB `turn`, keyPath `id`). Every mutation calls `save()`, which debounces 500 ms; `saveNow()` flushes on screen change, `visibilitychange` and `pagehide`.
+Persistence is two IndexedDB stores in DB `turn` (version 3): `docs` (keyPath `id`) and `pages` (keyPath `id`, index `docId`). Every mutation calls `save()`, which debounces 500 ms; `saveNow()` flushes on screen change, `visibilitychange` and `pagehide`.
+
+## Kept scans
+
+Every shot is written to `pages` as `{ id: "<docId>:<pageNo>", docId, no, blob }` the moment the frame is captured, before OCR — so a scan survives a failed read, a closed tab, or a crashed worker.
+
+Retention is per document and flat: `SCAN_CAP` (80 MB) caps what one document may keep. Past the cap the document keeps reading and saving text but stops storing images, with a single toast to say so. Printed pages compress to roughly 86 KB each, so 300 pages land near 25 MB and the ceiling stays a guardrail rather than a limit anyone hits.
+
+`doc.scanBytes` and `doc.scanCount` are running totals carried on the document, which is why the library and the read header can show sizes without touching a single blob. Deleting a document or discarding its scans walks the `docId` index with `openKeyCursor` and deletes keys, so images never enter memory for a delete.
+
+`reread()` replays the stored shots through `cleanPage` → `appendPage` into a fresh string and swaps it in only after the loop finishes: an interrupted, cancelled or empty re-read leaves the existing text untouched. It re-stamps `doc.lang`, which is the fix for a document scanned with the wrong language. The property that makes replay safe — duplicate shots are idempotent — is asserted in `test.mjs`.
 
 ## Capture loop
 
@@ -55,6 +65,10 @@ One `tesseract.js` worker, created lazily by `getWorker()` with the language of 
 The queue decouples capture pace from OCR pace: at 1–4 s per page the tally shows `reading N` while the camera keeps accepting pages. `finish()` awaits `waitForQueue()` before opening the read screen, so nothing is lost by leaving capture.
 
 OCRing a `Blob` (not a data URL) keeps memory flat; the worker is never recreated per page.
+
+## Actions
+
+Both the library row's `⋯` and the read header's `⋯` open the same bottom sheet, built by `docActions()`: Keep scanning, Re-read scans, Read in the other language (when scans are kept), Discard scans with the size it frees, Delete document. Destructive choices reopen the same sheet as a confirmation step — no native `confirm()` anywhere — and the re-read runs behind a progress sheet with a Cancel that leaves the text alone.
 
 ## Export
 

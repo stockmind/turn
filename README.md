@@ -18,6 +18,8 @@ Per page, then:
 2. `appendPage` throws away lines already at the tail of the document (re-shot page, overlapping shot), stitches the join, and rejoins words split across the page break.
 3. `chapterize` (at export) splits on `CHAPTER I.`, `CAPITOLO PRIMO`, `PARTE SECONDA`, bare numerals and short all-caps lines.
 
+**Kept scans.** Every shot is stored, so each document shows what it holds (`12 pages · 3.4 MB`) and *Re-read scans* can run the pages again — after switching the language, or when the text came out wrong. Discard them at any time to free the space; the text stays.
+
 **Languages:** English and Italian, picked from the `English / Italiano` selector and stored per document, so switching it later does not corrupt an export. The default follows the device language on first run. Section-word detection (`Capitolo`, `Prefazione`, `Indice`, …) is independent of the OCR language — either list works either way.
 
 Export: **EPUB 3** (paragraphs + real chapter headings + a TOC, hand-written zip writer, no dependencies), **Markdown**, **plain text**. On iOS the export goes through the share sheet, so it lands in Files, Mail or any reader directly.
@@ -72,5 +74,6 @@ icons/make-icons.py regenerate the PNG icons
 - **Bare `Note` / `Nota` is not treated as a heading** — it is far more often the first word of a paragraph than a section title.
 - **One column, no tables, no footnotes.** Two-column pages read across the gutter.
 - Page curvature, fingers and shadow are not corrected — the crop is flat. Fill the frame, keep the page flat, avoid a shadow across the spine.
-- ~1–4 s of OCR per page on a phone; the queue hides it, memory does not.
+- ~1–4 s of OCR per page on a phone; the queue hides it, memory does not. A re-read of a whole document is the same cost as the first pass, minutes for a long one.
+- **Scan storage is capped at 80 MB per document** — past that the text keeps being saved and the images are not.
 - Captures are cropped with CSS `object-fit: cover` math. If a capture ever comes out sideways on a specific iOS version, the frame's orientation disagrees with `drawImage` and `grab()` is the one function to touch.

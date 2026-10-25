@@ -7,7 +7,7 @@ Deployed from `main` to GitHub Pages at `https://stockmind.github.io/turn/`.
 ## Commands
 
 ```sh
-node test.mjs                 # 20 tests: text pipeline + EPUB byte layout. Must stay green.
+node test.mjs                 # 21 tests: text pipeline + EPUB byte layout. Must stay green.
 python3 -m http.server 8080   # http://localhost:8080 — camera works on localhost
 ```
 

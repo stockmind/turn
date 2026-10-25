@@ -1,5 +1,5 @@
 // sw.js — app shell offline. Bump CACHE when shipping a change.
-const CACHE = 'turn-v2';
+const CACHE = 'turn-v3';
 const ASSETS = [
   './', './index.html', './style.css', './app.js', './text.js', './epub.js',
   './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png',

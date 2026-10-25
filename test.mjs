@@ -60,6 +60,14 @@ test('a chapter that starts mid-page gets its own paragraph', () => {
   assert.match(appendPage(prev, 'CHAPTER IV\n\nNext morning.'), /really\n\nCHAPTER IV\n\nNext morning\./);
 });
 
+test('re-reading stored shots is idempotent when shots repeat', () => {
+  // Scans are kept per shot, so a re-read replays duplicates the capture pass discarded.
+  const once = appendPage('', cleanPage(OCR_PAGE));
+  const thrice = [OCR_PAGE, OCR_PAGE, OCR_PAGE].reduce((t, raw) => appendPage(t, cleanPage(raw)), '');
+  assert.equal(thrice, once);
+  assert.match(thrice, /^CHAPTER IIT\n\n/);
+});
+
 test('a re-shot page is not appended twice', () => {
   const prev = 'Chapter One\n\nIt was a dark night.\n\nThe road was empty.';
   assert.equal(appendPage(prev, 'It was a dark night.\n\nThe road was empty.'), prev);
