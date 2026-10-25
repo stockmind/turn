@@ -57,6 +57,13 @@ icons/make-icons.py regenerate the PNG icons
 
 `node test.mjs` covers the text pipeline against verbatim tesseract output (English and Italian) and validates the EPUB byte layout (mimetype first and stored, manifest, nav, chapter files, XML escaping).
 
+## Docs
+
+- `docs/architecture.md` — screens, the capture loop and its thresholds, the OCR queue, storage, offline shell, deployment.
+- `docs/text-pipeline.md` — reflow, de-duplication and chapter detection: rules, thresholds, tuning.
+- `docs/adding-a-language.md` — adding an OCR language and its section words, with the fixture procedure.
+- `AGENTS.md` — repo rules for automated contributors.
+
 ## Known limits
 
 - **Two languages only.** `LANGS` and `LANG_NAME` in `app.js` are the whole of it — add a tesseract code, a manifest-free extra model downloads on first use.
