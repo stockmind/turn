@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Turn — pages into text</title>
+<meta name="description" content="Point the camera at a document. It captures each page when steady, reads it, and builds a text file you can export.">
+<meta name="theme-color" content="#16130F">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Turn">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body data-screen="home">
+
+<!-- ───────────── library ───────────── -->
+<main id="home" class="screen">
+  <header class="bar">
+    <span class="wordmark">Turn</span>
+    <select class="lang" id="lang" aria-label="Text language">
+      <option value="eng">English</option>
+      <option value="ita">Italiano</option>
+    </select>
+    <button class="btn" id="newBtn">New document</button>
+  </header>
+
+  <p class="lede" id="lede">Point the camera at a document. It shoots when steady, reads as you turn the page.</p>
+  <ul class="docs" id="docs"></ul>
+  <p class="empty" id="empty" hidden>No documents yet. Scan one page to start.</p>
+  <footer class="colophon" id="colophon">Runs on this device. Nothing is uploaded.</footer>
+</main>
+
+<!-- ───────────── capture ───────────── -->
+<section id="capture" class="screen">
+  <video id="video" playsinline muted autoplay></video>
+
+  <div class="frame" id="frame" aria-hidden="true">
+    <i class="mark tl"></i><i class="mark tr"></i><i class="mark bl"></i><i class="mark br"></i>
+  </div>
+
+  <div class="hud">
+    <div class="hud-row top">
+      <button class="iconbtn" id="closeCam" aria-label="Back to documents">&#8592;</button>
+      <div class="chip" id="chip" data-tone="idle">Hold steady</div>
+      <button class="iconbtn" id="pauseBtn" aria-label="Pause capture">&#10073;&#10073;</button>
+    </div>
+
+    <div class="hud-row bottom">
+      <div class="tally"><b id="pageCount">0</b><span id="tallyLabel">pages</span></div>
+      <button class="shutter" id="shutter" aria-label="Capture page now"><span></span></button>
+      <button class="btn ghost" id="doneBtn">Done</button>
+    </div>
+  </div>
+
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+  <div class="hint" id="hint">
+    <p>Fill the frame with the page. It shoots by itself when the page is still.</p>
+    <p class="dim">Turn to the next page. Hold. Repeat. Tap the circle to shoot manually.</p>
+    <button class="btn" id="hintOk">Got it</button>
+  </div>
+</section>
+
+<!-- ───────────── read / export ───────────── -->
+<section id="read" class="screen">
+  <header class="bar">
+    <button class="iconbtn" id="backHome" aria-label="Back to documents">&#8592;</button>
+    <input class="title" id="title" aria-label="Document title" spellcheck="false">
+    <button class="iconbtn" id="moreBtn" aria-label="More">&#8943;</button>
+  </header>
+
+  <div class="meta" id="meta"></div>
+  <article class="prose" id="docText"></article>
+
+  <div class="menu" id="menu" hidden>
+    <button id="rescanBtn">Keep scanning</button>
+    <button id="deleteBtn" class="danger">Delete document</button>
+  </div>
+
+  <footer class="toolbar">
+    <span class="toolbar-label">Export</span>
+    <button data-export="epub">EPUB</button>
+    <button data-export="md">Markdown</button>
+    <button data-export="txt">Text</button>
+  </footer>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

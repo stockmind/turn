@@ -1,0 +1,10 @@
+{
+  "name": "turn",
+  "private": true,
+  "type": "module",
+  "description": "Point the camera at a document, turn pages, get text, Markdown or EPUB back.",
+  "scripts": {
+    "test": "node test.mjs",
+    "serve": "python3 -m http.server 8080"
+  }
+}

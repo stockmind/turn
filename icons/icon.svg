@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Turn">
+  <rect width="512" height="512" fill="#16130f"/>
+  <rect x="150" y="128" width="212" height="256" fill="#f4efe5"/>
+  <g fill="#63c9a8">
+    <rect x="96" y="96" width="16" height="96"/><rect x="96" y="96" width="96" height="16"/>
+    <rect x="400" y="96" width="16" height="96"/><rect x="320" y="96" width="96" height="16"/>
+    <rect x="96" y="320" width="16" height="96"/><rect x="96" y="400" width="96" height="16"/>
+    <rect x="400" y="320" width="16" height="96"/><rect x="320" y="400" width="96" height="16"/>
+  </g>
+</svg>
